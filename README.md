@@ -2,10 +2,10 @@
 
 ## 来源与改动
 
-- 基于 **c1overzz/dsh-bili-scroll v2.0.2**（<https://github.com/c1overzz/dsh-bili-scroll>，MIT）。
+- 基于 **c1overzz/dsh-bili-scroll **（<https://github.com/c1overzz/dsh-bili-scroll>，MIT）。
   那套「每天替你刷一轮 B站」是 c1overzz 写的，本仓是在它上面加东西，**不是重写**。
   署名与第三方代码见 [NOTICE.md](NOTICE.md)、[CONTRIBUTORS.md](CONTRIBUTORS.md)、[LICENSE](LICENSE)（MIT，Copyright c1overzz，原样保留）。
-- 本仓（`dsh-yu-bili`）在 v2.0.2 之上**只加了这几处**，别的全部跟上游一致：
+- 本仓（`dsh-yu-bili`）在  之上**只加了这几处**，别的全部跟上游一致：
 
   | 改动 | 在哪 | 说明 |
   |---|---|---|

@@ -2,7 +2,7 @@
 
 本插件（`dsh-bili-scroll` / 刷B站）本体以 **MIT** 协议发布，正文见仓库根目录的 `LICENSE`。
 
-> ⚠️ 本仓库是 **`dsh-yu-bili`** —— 基于 **c1overzz/dsh-bili-scroll v2.0.2**
+> ⚠️ 本仓库是 **`dsh-yu-bili`** —— 基于 **c1overzz/dsh-bili-scroll **
 > （<https://github.com/c1overzz/dsh-bili-scroll>，MIT）重建的本地增强分支。
 > 上游的 `LICENSE`（`Copyright (c) 2026 c1overzz`）、这份 NOTICE 与 `CONTRIBUTORS.md` 的署名**原样保留**；
 > 本仓的本地改动见 README 的「来源与改动」一节。
