@@ -1,6 +1,6 @@
 /**
  * dsh-yu-bili（原 dsh-bili-scroll）—— 浏览器半端（**设置在「设置」里的一页**）
- * ⚠️ id 仍是旧名 `dsh-bili-scroll`：内部 ID / 设置页插件 id 沿用旧名，改了它跟已有配置对不上
+ * 模块注册 id 必须与 package.json 的 name 一致；内部设置页 id 可继续沿用旧名。
  * ============================================================================
  * ⭐ **client bundle 不是 ESM，是自注册脚本**（2026-10-14 从官方包里挖到的约定）：
  *
@@ -27,7 +27,7 @@
  * ============================================================================
  */
 window.__ModuleLoader__.load({
-  id: 'dsh-bili-scroll',
+  id: 'dsh-yu-bili',
   factory: (require) => {
     const React = require('react')
     const h = React.createElement
