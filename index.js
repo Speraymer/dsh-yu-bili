@@ -1,5 +1,5 @@
 /**
- * dsh-yu-bili —— host 半端（基于 c1overzz/dsh-bili-scroll v2.0.2，MIT；本地改动见 README「来源与改动」）
+ * dsh-yu-bili —— host 半端
  * ============================================================================
  * 它是什么：每天替你刷一轮 B站 的插件版。
  *   1. **插件内部起那份 Python MCP**（`vendor/bilibili-mcp/mcp_server.py`），把它的能力
@@ -161,7 +161,7 @@ export function apply(ctx, config) {
     try { return readdirSync(sitePkgs(venvRoot)).some((n) => n.startsWith(prefix)) } catch { return false }
   }
   // ⚠️ 2026-10-18 用户实测：徽章显示「环境已就绪」、B站也登录了，可一跑就 `ModuleNotFoundError: No module named 'mcp'`
-  //    ⇒ 原判据**只查了 bilibili_api**（0.1.2 修"假就绪"时留下的口子）⇒ 缺 `mcp` / `qrcode` 也照样说就绪 ✗
+  //    ⇒ 原判据**只查了 bilibili_api** ⇒ 缺 `mcp` / `qrcode` 也照样说就绪 ✗
   //    ⇒ 三个都得有：bilibili_api（查数据）· mcp（跑那一轮的 MCP 服务器）· qrcode（画登录二维码）
   const VENV_DEPS = ['bilibili_api', 'mcp', 'qrcode']
   const missingVenvDeps = () => VENV_DEPS.filter((n) => !hasPkg(join(stateDir, '.venv'), n))
@@ -288,8 +288,8 @@ function reportMeta() {
   const hostCfg = () => normalize(config, { ...DEFAULTS })       // 宿主那份（schema 校验过、默认值已填）
   const savedCfg = () => normalize(readJson(cfgFile, {}), { ...DEFAULTS })
   /**
-   * ⭐⭐ 0.1.11（2026-10-19 · 第三批用户报"开关还是回弹"之后改的）
-   *   0.1.9 / 0.1.10 一直想"跟宿主对账"：宿主那边有值就以宿主为准 —— 但 DSH 0.2.1 的某些启动方式下
+   * 第三批用户报“开关还是回弹”之后改为本地优先。
+   * 之前一直想“跟宿主对账”：宿主那边有值就以宿主为准 —— 但 DSH 的某些启动方式下
    *   `ctx.settings.update` 写不进去（`profile reload requires the root Include entry`），
    *   于是用户在插件面板点的每一个开关，5 秒轮询后都被宿主旧值压回 ⇒ 表现成"开一个，另一个像被关掉"。
    *   ⇒ 现在改成记一份"**用户在插件面板里存过的键**"（`config.json` 的 `_set`）：
@@ -350,7 +350,7 @@ function reportMeta() {
     //    ⇒ 这个键不让宿主对账（它由插件自己算出来，不该被界面上的旧值压住）
     const ov = readOverride()   // 本地刚存、宿主没同步成功的键 ⇒ 以本地为准
     const touched = new Set([
-      ...touchedKeys,            // 用户在我们面板里保存过的键（0.1.11 的判据）
+      ...touchedKeys,            // 用户在我们面板里保存过的键
       ...Object.keys(ov),
       'pythonPath',              // 插件自己算出来的路径
       // ⭐ 2026-10-19（一位用户的 dsh 分析出来的）：桌面版 0.2.x 里，写进 cordis.patch.yml 的设置
@@ -383,7 +383,7 @@ function reportMeta() {
   const refreshCfg = () => { Object.assign(cfg, loadCfg()) }
   const saveCfg = (patch) => {
     Object.assign(cfg, normalize(patch, cfg))
-    // ⭐ 记下"这些键由插件面板说了算"（0.1.11：loadCfg 拿它决定谁赢）
+    // 记下“这些键由插件面板说了算”，loadCfg 拿它决定谁赢。
     for (const k of Object.keys(patch || {})) if (k in DEFAULTS) touchedKeys.add(k)
     writeJson(cfgFile, { ...cfg, _set: [...touchedKeys] })
   }
@@ -399,7 +399,7 @@ function reportMeta() {
       }
       await ctx.settings.update(row.ns, patch, row.revision)
       // ⭐ READBACK（2026-10-18）：update() 不报错 ≠ 值真的生效 ✗
-      //   三四位用户装了 0.1.9 后开关照样弹回，而界面**没有**出现"没同步"提示
+      //   三四位用户都遇到开关回弹，而界面**没有**出现“没同步”提示。
       //   ⇒ 说明 host.ok 判成了成功、值却没落进生效层 ⇒ 必须**回读用户层**再确认一遍 ✓
       const after = settingsDesc(true)
       const user = after?.user || {}
@@ -433,7 +433,7 @@ function reportMeta() {
     const host = await saveCfgHost(clean)
     // 宿主写成功 ⇒ 恢复对账；失败 ⇒ 记成"本地优先"，别让界面把它们压回去
     // ⭐ 无条件本地优先（2026-10-18 第二次修）：
-    //   三四位用户装了 0.1.9、界面没有"没同步"提示、开关照样弹回
+    //   三四位用户都遇到开关回弹，而界面没有“没同步”提示。
     //   ⇒ 往 DSH 写这一步既没报错、回读也看不出差别，但**生效值仍是旧的**
     //   （多半是 profile 层压过了 user 层）✗
     //   ⇒ 不再指望 DSH 那边：只要是从**插件面板**保存的键，读配置时一律以插件自己那份为准 ✓
@@ -1843,10 +1843,10 @@ function reportMeta() {
         if (!existsSync(py)) {
           // ⭐ 2026-10-19（用户 `天文星球` 的截图）：uv 报 `Could not acquire lock … uv\cache\.lock 拒绝访问 (os error 5)`
           //    以前这句话只会说"先点上面的装依赖" ✗ —— 用户根本不知道该动哪儿 ✓
-          //    ⇒ 现在把两条真实出路写出来（0.1.11 起 uv 缓存已经改到插件家，正常不会再撞）
+          //    ⇒ 现在把两条真实出路写出来（uv 缓存已经改到插件家，正常不会再撞）。
           appendAsr('建环境失败 —— 可能有两种原因：\n')
           appendAsr('  ① 上面日志里出现 "Could not acquire lock / uv\\cache\\.lock / 拒绝访问" ⇒ 是 uv 缓存目录没权限；\n')
-          appendAsr('     装新版（0.1.11+）会把缓存改到插件自己的家目录，就不会再碰 %LOCALAPPDATA%\\uv 了。\n')
+          appendAsr('     重新安装会把缓存改到插件自己的家目录，就不会再碰 %LOCALAPPDATA%\\uv 了。\n')
           appendAsr('  ② 机器上没有可用的 uv 或 Python ⇒ 先点上面的「装依赖」，把主依赖装好再来。\n')
           log('转写：建环境失败'); return
         }
@@ -2221,7 +2221,7 @@ function reportMeta() {
       const out = { ok: true, current: myVersion(), latest: '', hasNew: false, source: 'github', page: 'https://github.com/Speraymer/dsh-yu-bili' }
       // ⭐ 要比谁更新，不能只比不相等 —— 否则本地版本高于 npm 时会误报有新版
       // ⭐ 2026-10-20：预发布标签要单独看 —— 以前只比三段数字 ⇒ `0.2.0-rc.1` 被当成 [0,2,0]，
-      //    跟正式版打平、却比 0.1.18 更大 ⇒ 用户会被提示"升级到 rc 版" ✗；现在数字段相同时**正式版 > 预发布版**
+      //    跟较旧正式版比数字段更大时，用户会被提示“升级到 rc 版” ✗；现在数字段相同时**正式版 > 预发布版**。
       const vnum = (v) => String(v || '').trim().replace(/^v/i, '').split('-')[0].split('.').map((x) => parseInt(x, 10) || 0)
       const isPre = (v) => /-/.test(String(v || '').trim())
       const cmp = (a, b) => {

@@ -165,7 +165,7 @@ const st = await import(pathToFileURL(P + 'lib/state.mjs').href)
 const reqTxt = readFileSync(P + 'vendor/bilibili-mcp/requirements.txt', 'utf8')
 ok(!reqTxt.includes('dsh-bili-duty'), 'requirements.txt 里还留着旧包名 dsh-bili-duty')
 
-// ⑪+⑫ 我们这一版加的：归档 digest / 日志轮转 / 0.1.6 的两颗雷
+// ⑪+⑫ 归档 digest / 日志轮转 / 两个历史回归点
 ok(idx.includes("const digestDir = join(stateDir, 'digest')"), 'index.js 没有预建 digest 目录')
 ok(/const digestDir[\s\S]{0,400}mkdirSync\(digestDir/.test(idx), 'digest 目录没有真的建')
 ok(idx.includes('追加进归档'), '提示词里没有要求写归档')

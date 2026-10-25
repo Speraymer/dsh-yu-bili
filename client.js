@@ -519,7 +519,7 @@ function WatchTab() {
       if (!cfg) {
         return h('div', { 'data-bd-page': '' },
           h('div', { 'data-bd-note': '' }, fails >= 3
-            ? '读不到插件配置（已经试了 ' + fails + ' 次）。常见原因有三个：装的还是 0.1.11 / 0.1.12（那两版有 bug，会卡在这里）；刚装完没重启 dsh；或者插件加载失败。'
+            ? '读不到插件配置（已经试了 ' + fails + ' 次）。常见原因：刚装完没重启 DSH，或插件加载失败。'
             : '读设置中…'),
           fails >= 6 ? h('div', { 'data-bd-note': '' },
             '可以先试：升级到最新版（dsh plugin --profile web add github:Speraymer/dsh-yu-bili）→ 重启 dsh；还不行就把 ' +
@@ -814,7 +814,7 @@ function WatchTab() {
           () => h(Panel),
         ))
 
-  // ⭐ 2026-10-20 实验：会话头第三个 tab（0.2.1 里这个槽位真实存在；老版本没有就静默跳过）
+  // 会话头第三个 tab；宿主没有这个槽位时静默跳过。
   try {
     slots.inject('conversation.view', () => slots.register({
       name: 'conversation.view',

@@ -1,48 +1,4 @@
-# dsh-yu-bili ｜ 刷B站（本地增强分支）
-
-## 来源与改动
-
-- 基于 **c1overzz/dsh-bili-scroll **（<https://github.com/c1overzz/dsh-bili-scroll>，MIT）。
-  那套「每天替你刷一轮 B站」是 c1overzz 写的，本仓是在它上面加东西，**不是重写**。
-  署名与第三方代码见 [NOTICE.md](NOTICE.md)、[CONTRIBUTORS.md](CONTRIBUTORS.md)、[LICENSE](LICENSE)（MIT，Copyright c1overzz，原样保留）。
-- 本仓（`dsh-yu-bili`）在  之上**只加了这几处**，别的全部跟上游一致：
-
-  | 改动 | 在哪 | 说明 |
-  |---|---|---|
-  | 可信指令 | `index.js` + `vendor/bilibili-mcp/mcp_server.py` | 新配置 `trustedCommandUid`：只有该 UID 发的、以 `/dsh ` 开头的**评论**才算指令。判定在 Python 侧按评论接口返回的**真实 mid** 做，昵称伪造成不了；`bili_commands` 每次只交付未见过的新指令，判重表落在插件家目录 `trusted_commands.json`。开着时才把 `bili_commands` 加进这一轮的工具白名单 |
-  | 人设优先 | `index.js` 的提示词拼装 | 拿到使用者设定时，开头不再写「你是这个账号的 B站 助手」，改成「你是谁由那份设定说了算」；人设截断上限 6000 → **16000** 字符，超了写日志 |
-  | 报告/评论的人味 | `index.js` 的提示词拼装 | 报告不再套「为什么值得 / 你自己的一句话 / 总结」字段：标题 / UP / 链接 / 播放量仍要原样准确，其余用角色口吻写；评论 30 字上下、60 字封顶，可带一个 B站 表情，写前扫一眼 `voice.md` |
-  | 每日额度 | `index.js` + `client.js` | 每天上限 50 → **80** 条（三处一起改，免得界面把大数弹回去） |
-  | 搜索带发布时间 | `mcp_server.py` | `bili_search` 结果多一个 `pubdate`（unix 秒），上层可按「发布超过一个月就不读」初筛 |
-  | 转写语言 | `lib/asr.py` | `--lang` 默认 `zh` → **`auto`**；输出不足 10 字时**关掉 VAD 重跑一次**（英文/混合语言视频原来会被判成"没声音"） |
-  | 改名与更新源 | `package.json`、`cordis.patch.yml`、`index.js`、`client.js` | 包名 `dsh-yu-bili`；检查更新 / 一键升级 / 报错提示全部指向本仓，**不指回 c1overzz** |
-
-- 章程（每日额度、谷时窗口、`### BV号` 报告格式、抽帧读字这些）**不在插件代码里** ——
-  它们在使用者自己的 `~/.dsh/bili-duty/duty.md`，升级插件不会动它，本仓也不覆盖它。
-
-## 不能与原版共存
-
-**本插件与原版 `dsh-bili-scroll` 装在同一份 DSH 里会打架**，二选一：
-
-- **挂载 id 仍叫 `bili-scroll`**（`cordis.patch.yml`），设置页的命名空间就等于它 —— 两个包同时装，同一个 id 会被插两次；
-- **数据目录仍叫 `~/.dsh/bili-duty/`**（`config.json` / `mcp_server.py` / `duty.md` / `out/` / `seen.md` / `duty.log`），两份代码会互相盖 `mcp_server.py`；
-- **路由仍是 `/api/bili-duty/*`**、设置页插件 id 仍是 `dsh-bili-scroll`。
-
-所以：**装本仓之前先把原版卸掉**（`dsh plugin --profile web remove dsh-bili-scroll`），已有的配置和判重表会自动接着用。
-
-> **先看三行**
-> - **空间**：不装「本地转写」约 **84 MB**；装了转写约 **1 GB**（其中 Whisper 模型 538 MB，可在设置里换更小的模型）。
-> - 装完**必须重启一次** dsh（插件在 bundle 层组装）。
->   DSH 只留一句 `warning: 1 entry did not activate … failed to import`（根因是宿主半 import 的两个包
->   另有用户反馈桌面版上「自动跑那一轮会卡住」—— 卡住就先只用设置页的「**现在跑一轮**」手动跑（那条稳）。
->
-> 跑一次 `dsh plugin --profile web add dsh-bili-scroll` 升级就好（那一版建 Python 环境时缺一个参数，
-> 依赖装不上、二维码也画不出来，重装多少次都一样）。
-
-> 🎬 演示视频（原作者录的）：**https://www.bilibili.com/video/BV1d8pU6xEZX/**　·　💬 原版的交流群在上游 README 里（本仓不另设群）
->
-> DSH 插件：**每天替你刷一轮 B站** —— 它自己搜、**读字幕原文**判断、把值得的写成报告，特别值得的会留一条评论 **@ 你**。
-> **你收到的每一条 @，都是它先筛过一遍的。**
+# dsh-yu-bili ｜ 刷B站
 
 ## 它做什么
 
@@ -142,7 +98,7 @@ dsh plugin --profile web add github:Speraymer/dsh-yu-bili
 1. **先确认前提**：机器上有 `Python 3.10+` 或 `uv` 吗？（查 `python --version` / `uv --version`）
    两个都没有 ⇒ **建议装 `uv`**（单文件 exe、免管理员、能自带 Python）；
 2. **装插件**：`dsh plugin --profile web add github:Speraymer/dsh-yu-bili`
-   （⚠️ 本仓没有发布到 npm，只能走 GitHub；也别跟原版 `dsh-bili-scroll` 一起装）
+   （本仓从 GitHub 安装和更新。）
 3. ⚠️ **必须提醒用户重启一次 dsh** —— bundle 层要重启才组装，不重启插件不会生效；
 4. 重启后请用户进 **设置 → 刷B站**：先点「**装依赖**」（几十秒，进度就显示在页面下面）、再点「**扫码登录**」
    （手机 B 站扫码，**确认时选"记住我 / 长期"**）；
@@ -166,15 +122,15 @@ MIT（内置的 `vendor/bilibili-mcp/` 另见该目录下的 LICENSE）
 ## 交流与反馈
 
 - **遇到问题先开个 Issue** —— 安装、报错、设置这些，按下面的清单写清楚，基本一轮就能定位。
-  - 原版的 QQ 交流群在上游 README 里；本仓是本地分支，不另设群。
+  - 使用问题请提交到本仓库 Issues。
 - **确实像 bug 的**（能复现、有报错原文），欢迎开 [Issue](https://github.com/Speraymer/dsh-yu-bili/issues/new)：
   请带上 **dsh 版本 / 插件版本（设置页顶部徽章）/ 系统（web 还是桌面版）/ 报错原文或 `duty.log` 最后几十行**。
   有这个我基本一轮就能定位；只说"装不上"，通常要来回问三四次。
-- **原版的问题**（这套插件本身的设计、上游代码）请找上游：<https://github.com/c1overzz/dsh-bili-scroll/issues>。
+- 问题反馈：<https://github.com/Speraymer/dsh-yu-bili/issues>。
 - **想改进它**：欢迎 PR。⚠️ 但请**一件事一个 PR**（不要一个 PR 塞五个功能），
   这样我能独立合并、出问题也好回滚。
 - **二次分发 / 二创**：本仓库是 **MIT**，允许改、允许再发、允许商用，**保留 `LICENSE` 里的版权行和 MIT 正文**即可；
-  提一句"基于 dsh-bili-scroll 改的"就更好了。第三方代码与署名见 [NOTICE.md](NOTICE.md)。
+  第三方 MIT 版权声明见 [NOTICE.md](NOTICE.md)。
 - **演示视频**：<https://www.bilibili.com/video/BV1d8pU6xEZX/>
 
 *反馈请不要去打扰素材作者（上善 / ZipZipPipe 等），他们只管角色形象，不管这个插件。*

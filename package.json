@@ -1,7 +1,7 @@
 {
   "name": "dsh-yu-bili",
-  "version": "1.0.0",
-  "description": "DSH 插件：每天替你刷一轮 B站 —— 读字幕挑出值得的、写一份日报，值得的就 @ 你（基于 c1overzz/dsh-bili-scroll v2.0.2）",
+  "version": "2.0.0",
+  "description": "DSH 刷B站插件：谷时浏览、读字幕和评论、写日报，并把有价值的经历交给人格素材入口。",
   "keywords": [
     "dsh",
     "dsh-plugin",
@@ -33,12 +33,12 @@
     "lib",
     "prompts",
     "vendor",
+    "CHANGELOG.md",
     "README.md",
     "AGENTS.md",
     "selfcheck.mjs",
     "LICENSE",
-    "NOTICE.md",
-    "CONTRIBUTORS.md"
+    "NOTICE.md"
   ],
   "engines": {
     "dsh": ">=0.1.7-rc.1",
@@ -70,8 +70,7 @@
         "@deepseek-ai/dsh-client-ui-settings",
         "@deepseek-ai/dsh-client-ui-settings-plugins"
       ]
-    },
-    "基于": "git+https://github.com/c1overzz/dsh-bili-scroll.git#v2.0.2"
+    }
   },
   "publishConfig": {
     "access": "public",
