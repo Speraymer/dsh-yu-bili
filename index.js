@@ -79,6 +79,10 @@ export const Config = !z ? undefined : z.object({
   pythonPath: z.string().default('python').extra('volatile', true),
   /** dsh 的 bin.js（不填就试自动探测，再退化成 shell 里的 dsh） */
   dshBin: z.string().default('').extra('volatile', true),
+  /** ⭐ 定时任务钉死的 provider（例如 tongji）；留空 = 跟随界面当前选的那个模型 */
+  provider: z.string().default('').extra('volatile', true),
+  /** ⭐ 定时任务钉死的模型 id（例如 DeepSeek-V4.1-Flash）；留空 = 跟随界面当前选的那个模型 */
+  model: z.string().default('').extra('volatile', true),
   /** headless 那一轮用哪个 profile */
   headlessProfile: z.string().default('headless').extra('volatile', true),
   /** 给那一轮叠一份插件自己的 patch（把 B站 MCP 挂上）—— 用户 profile 一个字都不用改 */
@@ -1138,13 +1142,21 @@ function reportMeta() {
       const sel = ctx.get('agentDefaultModel')?.currentSelection?.() ?? null
       const selProvider = sel?.provider ?? sel?.providerId
       const selModel = sel?.model ?? sel?.modelId
-      if (selProvider && selModel) {
+      // ⭐ 2026-10-27：设置里填了 provider + model 就**钉死**（定时任务不该跟着界面上的选择漂）；
+      //    没填才退回老行为 —— 跟随界面当前选的那个。
+      const pinProvider = String(cfg.provider || '').trim()
+      const pinModel = String(cfg.model || '').trim()
+      const pinned = pinProvider && pinModel
+      const useProvider = pinned ? pinProvider : selProvider
+      const useModel = pinned ? pinModel : selModel
+      const useEffort = pinned ? 'high' : sel?.reasoningEffort
+      if (useProvider && useModel) {
         yml.push(
           '- id: agent-default-model',
           '  config:',
-          '    provider: ' + String(selProvider),
-          '    model: ' + String(selModel),
-          ...(sel.reasoningEffort ? ['    reasoningEffort: ' + String(sel.reasoningEffort)] : []),
+          '    provider: ' + String(useProvider),
+          '    model: ' + String(useModel),
+          ...(useEffort ? ['    reasoningEffort: ' + String(useEffort)] : []),
           '',
         )
       }
