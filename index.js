@@ -79,9 +79,9 @@ export const Config = !z ? undefined : z.object({
   pythonPath: z.string().default('python').extra('volatile', true),
   /** dsh 的 bin.js（不填就试自动探测，再退化成 shell 里的 dsh） */
   dshBin: z.string().default('').extra('volatile', true),
-  /** ⭐ 定时任务钉死的 provider（例如 tongji）；留空 = 跟随界面当前选的那个模型 */
+  /** ⭐ 定时任务钉死的 provider 路由名（任何已注册的路由都行，例如某个 OpenAI 兼容网关）；留空 = 跟随界面当前选的那个模型 */
   provider: z.string().default('').extra('volatile', true),
-  /** ⭐ 定时任务钉死的模型 id（例如 DeepSeek-V4.1-Flash）；留空 = 跟随界面当前选的那个模型 */
+  /** ⭐ 定时任务钉死的模型 id（要和上面那个 provider 对得上）；留空 = 跟随界面当前选的那个模型 */
   model: z.string().default('').extra('volatile', true),
   /** headless 那一轮用哪个 profile */
   headlessProfile: z.string().default('headless').extra('volatile', true),
