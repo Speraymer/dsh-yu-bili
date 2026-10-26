@@ -597,6 +597,20 @@ async def bili_reply(bvid: str, text: str, rpid: int = 0, root: int = 0) -> str:
     Returns:
         发表结果
     """
+    # ⭐ 2026-10-27（安全）：公开发言的闸必须在**代码**里，不能只在提示词里。
+    #    宿主在 overlay 的 env 里下发 BILI_ALLOW_PUBLIC_COMMENT（'1' 允许 / '0' 不许）。
+    #    只有**显式**为 '0' 才拦 —— 不设这个变量时保持原行为（交互式会话不受影响）。
+    if os.environ.get("BILI_ALLOW_PUBLIC_COMMENT", "").strip() == "0":
+        return json.dumps({
+            "success": False,
+            "blocked": True,
+            "error": (
+                "这一轮没有公开发言的授权（BILI_ALLOW_PUBLIC_COMMENT=0）："
+                "当前是「只私信」模式，或者没开自动评论。要发得改设置，"
+                "或者由本人在交互会话里明确要求。"
+            ),
+        }, ensure_ascii=False)
+
     cred = get_cred()
     v = video.Video(bvid=bvid, credential=cred)
     info = await v.get_info()
@@ -1408,6 +1422,17 @@ async def bili_send_message(receiver_uid: int, text: str) -> str:
 
     if not text or not text.strip():
         return json.dumps({"success": False, "error": "text 不能为空"}, ensure_ascii=False)
+
+    # ⭐ 2026-10-27（安全）：收件人由宿主固定，模型不能自己挑人。
+    #    宿主在 overlay 的 env 里下发 BILI_DM_UID；不设这个变量时保持原行为。
+    allowed_uid = os.environ.get("BILI_DM_UID", "").strip()
+    if allowed_uid:
+        if not allowed_uid.isdigit() or str(int(receiver_uid)) != allowed_uid:
+            return json.dumps({
+                "success": False,
+                "blocked": True,
+                "error": f"只允许发给 UID {allowed_uid}（本轮私信收件人由设置固定，模型不能改）。",
+            }, ensure_ascii=False)
 
     try:
         result = await session.send_msg(

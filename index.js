@@ -1106,10 +1106,19 @@ function reportMeta() {
    *    mcp_server.py 那头**不在白名单里的工具根本不注册** —— 连名字都不给它看见 ✓。
    *    要读全就手工改这个列表（或者直接跑 mcp_server.py，不设这个变量 = 全放）。
    */
+  // ⭐ 2026-10-27（安全）：公开评论到底许不许 —— **一处判断**，白名单和 overlay 下发的 env 都用它。
+  //    原来白名单只看 autoComment/replyToComments，于是 dmMode='only'（只私信）时
+  //    照样把 bili_reply 交给那一轮的模型 —— 而「只私信」在设置页上写的是「一条公开评论都不发」。
+  const 公开评论许可 = () => {
+    const dmModeNow = String(cfg.dmMode || 'off')
+    if (dmModeNow === 'only') return false
+    return Boolean((cfg.autoComment && cfg.mentionName) || cfg.replyToComments)
+  }
+
   const mcpWhitelist = () => {
     const list = ['bili_search', 'bili_subtitle', 'bili_comments', 'bili_video_info']
     if (Number(cfg.trustedCommandUid) > 0) list.push('bili_commands')   // 本地新增：只开了可信指令才给这只
-    if (cfg.autoComment || cfg.replyToComments) list.push('bili_reply')   // 只有真要发评论才给这只
+    if (公开评论许可()) list.push('bili_reply')   // 只有真要发评论、且不是「只私信」才给这只
     // ⭐ 2026-10-19（issue #25 / #16 的实证，做法参考社区 PR #37）：私信开着却忘了给 bili_send_message ⇒
     //   模型手里压根没有这只工具 ⇒ 表现成"开关也开了、这一轮也跑了，但从来没发出去过" ✗
     //   ⇒ dmMode 不是 off、且填了收件人 UID 才放进去（关着就不给，白名单别松）
@@ -1176,6 +1185,10 @@ function reportMeta() {
         `          BILI_MCP_TOOLS: '${mcpWhitelist().join(',')}'`,
         // ⭐ 本地新增：可信指令的 UID 通过环境变量交给 Python 侧（只认评论接口返回的真实 mid）
         ...(Number(cfg.trustedCommandUid) > 0 ? [`          BILI_COMMAND_UID: '${Math.trunc(Number(cfg.trustedCommandUid))}'`] : []),
+        // ⭐ 2026-10-27（安全）：把两道闸下发给 Python 侧 —— 那边才是真正能发东西的地方，
+        //    白名单只管「给不给这只工具」，管不了「这只工具被怎么用」。
+        `          BILI_ALLOW_PUBLIC_COMMENT: '${公开评论许可() ? '1' : '0'}'`,
+        ...(Number(cfg.dmUid) > 0 ? [`          BILI_DM_UID: '${Math.trunc(Number(cfg.dmUid))}'`] : []),
         '',
       )
     }
@@ -2184,14 +2197,25 @@ function reportMeta() {
       // ⭐ 2026-10-21：**打开一个网页**（桌面版里 <a target=_blank> 不一定交给系统浏览器 ⇒ 改成让宿主 shell 打开）
       if (what === 'url') {
         const u = String(body?.u || '')
-        const onlyHttp = /^https?:\/\//i.test(u)
-        if (!onlyHttp) return sendJson(res, 200, { ok: false, error: '只接受 http(s) 链接' })
+        if (!/^https?:\/\//i.test(u)) return sendJson(res, 200, { ok: false, error: '只接受 http(s) 链接' })
+        // ⭐ 2026-10-27（安全）：别再把 URL 交给 cmd.exe —— 它会再解析一遍，'&' 就是命令分隔符。
+        //    改用 rundll32 的 URL 处理器：不经 shell，参数原样传。链接本身再做一次严格校验。
+        let 解析
+        try { 解析 = new URL(u) } catch { return sendJson(res, 200, { ok: false, error: '链接格式不对' }) }
+        if (解析.protocol !== 'http:' && 解析.protocol !== 'https:') {
+          return sendJson(res, 200, { ok: false, error: '只接受 http(s) 链接' })
+        }
+        if (/[\u0000-\u001f\u007f\s]/.test(u)) return sendJson(res, 200, { ok: false, error: '链接里有控制字符或空格' })
         if (process.platform !== 'win32') {
           const opener = process.platform === 'darwin' ? 'open' : 'xdg-open'
           spawn(opener, [u], { detached: true, stdio: 'ignore' }).on('error', () => {})
           return sendJson(res, 200, { ok: true })
         }
-        spawn('cmd.exe', ['/c', 'start', '', u], { detached: true, stdio: 'ignore' }).on('error', () => {})
+        spawn(
+          join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'rundll32.exe'),
+          ['url.dll,FileProtocolHandler', u],
+          { detached: true, stdio: 'ignore', windowsHide: false },
+        ).on('error', () => {})
         log('打开网页：' + u)
         return sendJson(res, 200, { ok: true })
       }
