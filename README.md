@@ -18,7 +18,7 @@
 
 - **有 `uv` 最好**：单个 ~32 MB 的 exe，**解压就能用、不用管理员、不用进 PATH**，而且它还能自己把 Python 拉下来；
 - 只有 Python 也行（装官方安装器时记得勾 **`Add to PATH`**）；
-- ⭐ **两个都没有？也没关系**：点「装依赖」时**插件会自己下一份 `uv` 放到自己的家目录**
+- ⭐ **两个都没有？也没关系**：点「装主依赖」时**插件会自己下一份 `uv` 放到自己的家目录**
   （单文件、约 15MB、**免管理员、不用进 PATH** ✓），之后全程自动 ✓
   · 它会**先直连 GitHub，不通就走国内加速代理**，还配了 PyPI 镜像兜底 ✓
   · 下载完会**核对官方 `sha256`**（对不上就丢弃换下一个源 ✓）—— 因为它下来的东西是要**被执行**的
@@ -99,7 +99,7 @@ dsh plugin --profile desktop add github:Speraymer/dsh-yu-bili
 
 1. **先确认前提**：机器上有 `Python 3.10+` 或 `uv` 吗？（查 `python --version` / `uv --version`）
    两个都没有 ⇒ **建议装 `uv`**（单文件 exe、免管理员、能自带 Python）；
-2. **装插件**：`dsh plugin --profile web add github:Speraymer/dsh-yu-bili`
+2. **装插件**：`dsh plugin --profile desktop add github:Speraymer/dsh-yu-bili`
    （本仓从 GitHub 安装和更新。）
 3. ⚠️ **必须提醒用户重启一次 dsh** —— bundle 层要重启才组装，不重启插件不会生效；
 4. 重启后请用户进 **设置 → 刷B站**：先点「**装依赖**」（几十秒，进度就显示在页面下面）、再点「**扫码登录**」

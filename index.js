@@ -752,7 +752,7 @@ function reportMeta() {
     return st.day === dayKey(now) ? Number(st.count || 0) : 0
   }
 
-  // ⭐ 一键升级：由宿主自己跑 `dsh plugin --profile web add github:Speraymer/dsh-yu-bili`
+  // ⭐ 一键升级：由宿主自己跑 `dsh plugin --profile desktop add github:Speraymer/dsh-yu-bili`
   //    ⚠️ 装完必须重启 dsh 才生效；⚠️ Windows 上"替换正在运行的插件"可能被文件占用挡住（我们踩过）
   //    ⚠️ 本地改动：本仓是 fork，npm 上没有 `dsh-yu-bili` 这个包 ⇒ 升级**只走 GitHub**（先 Release 的 tgz，再退 github:）
   let upgrading = false
@@ -791,17 +791,17 @@ function reportMeta() {
         // ⚠️ 2026-10-19：找不到 dsh 时不再硬跑，直接把要做的事说清楚
         if (dsh.missing) {
           appendInstall('=== 没法自动升级：找不到 dsh。' + dsh.hint + ' ===\n')
-          appendInstall('=== 也可以自己手动跑一次：dsh plugin --profile web add github:Speraymer/dsh-yu-bili ===\n')
+          appendInstall('=== 也可以自己手动跑一次：dsh plugin --profile desktop add github:Speraymer/dsh-yu-bili ===\n')
           upgrading = false
           return
         }
         let cmd = dsh.command || 'dsh'
-        let args = [...(dsh.args || []), 'plugin', '--profile', 'web', 'add', spec]
+        let args = [...(dsh.args || []), 'plugin', '--profile', 'desktop', 'add', spec]
         if (dsh.shell) { args = ['/c', cmd, ...args]; cmd = 'cmd.exe' }
         appendInstall('$ ' + cmd + ' ' + args.join(' ') + '\n')
         const code = await spawnTo(cmd, args, { sink: appendInstall })
         if (code === 0) appendInstall('=== 升级完成 —— 重启一次 dsh 才生效 ===\n')
-        else appendInstall('=== 升级没成功（exit ' + code + '）。可以自己手动跑一次：dsh plugin --profile web add github:Speraymer/dsh-yu-bili ===\n')
+        else appendInstall('=== 升级没成功（exit ' + code + '）。可以自己手动跑一次：dsh plugin --profile desktop add github:Speraymer/dsh-yu-bili ===\n')
       } catch (e) { appendInstall('升级崩了：' + (e?.stack ?? e) + '\n') } finally { upgrading = false }
     })()
     return { ok: true, started: true, log: installLogFile, hint: '正在升级 —— 完成后重启一次 dsh 才生效' }

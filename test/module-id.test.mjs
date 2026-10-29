@@ -27,3 +27,9 @@ test('前端注册 id 必须等于包名', () => {
 test('前端只强依赖 slots，缺少可选 UI 服务也能加载', () => {
   assert.deepEqual(pkg.dsh.client.inject, ['slots'])
 })
+
+test('安装与自更新都指向桌面 profile', () => {
+  for (const file of ['index.js', 'client.js', 'README.md', 'AGENTS.md', 'cordis.patch.yml']) {
+    assert.doesNotMatch(readFileSync(join(根, file), 'utf8'), /--profile web/)
+  }
+})

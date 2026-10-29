@@ -522,7 +522,7 @@ function WatchTab() {
             ? '读不到插件配置（已经试了 ' + fails + ' 次）。常见原因：刚装完没重启 DSH，或插件加载失败。'
             : '读设置中…'),
           fails >= 6 ? h('div', { 'data-bd-note': '' },
-            '可以先试：升级到最新版（dsh plugin --profile web add github:Speraymer/dsh-yu-bili）→ 重启 dsh；还不行就把 ' +
+            '可以先试：升级到最新版（dsh plugin --profile desktop add github:Speraymer/dsh-yu-bili）→ 重启 dsh；还不行就把 ' +
             '%USERPROFILE%\\.dsh\\bili-duty\\duty.log 的最后几十行发给作者。') : null)
       }
 
