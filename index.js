@@ -776,7 +776,7 @@ function reportMeta() {
             const jj = await rr.json()
             const tag = String(jj.tag_name || '').trim()
             const ver = tag.replace(/^v/, '')
-            if (ver && ver !== myVersion()) {
+            if (ver && ghUpdateCache?.latest === ver && ver !== myVersion()) {
               const url = 'https://github.com/Speraymer/dsh-yu-bili/releases/download/' + tag + '/dsh-yu-bili-' + ver + '.tgz'
               spec = url
               appendInstall('（用 Release 的 tgz 直链：' + url + '）\n')

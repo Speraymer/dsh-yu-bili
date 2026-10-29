@@ -29,7 +29,10 @@ test('前端只强依赖 slots，缺少可选 UI 服务也能加载', () => {
 })
 
 test('安装与自更新都指向桌面 profile', () => {
-  for (const file of ['index.js', 'client.js', 'README.md', 'AGENTS.md', 'cordis.patch.yml']) {
+  const host = readFileSync(join(根, 'index.js'), 'utf8')
+  for (const file of ['client.js', 'README.md', 'AGENTS.md', 'cordis.patch.yml']) {
     assert.doesNotMatch(readFileSync(join(根, file), 'utf8'), /--profile web/)
   }
+  assert.doesNotMatch(host, /--profile web/)
+  assert.match(host, /ghUpdateCache\?\.latest === ver/)
 })
