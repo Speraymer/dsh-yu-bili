@@ -11,10 +11,10 @@
  · ⚠️ 若用户机器上的**杀软拦了这次下载**：让他把 `%USERPROFILE%\.dsh\bili-duty\bin\` 加白，或干脆自己装 uv / Python 3.10+ ✓
  · ⭐ **万一下载链路都不通**（有用户反馈"桌面版上这条链路经常不通"）：**手动放一份 `uv.exe` 到 `<家目录>\bin\` 就行**
  —— 插件会**用那一份、跳过下载** ✓（他 `PATH` 里本来就有 `uv` 的话，直接用那个 ✓）
-2. `dsh plugin --profile web add github:Speraymer/dsh-yu-bili`（本仓没有发布到 npm，只能走 GitHub）
+2. `dsh plugin --profile desktop add github:Speraymer/dsh-yu-bili`（本仓没有发布到 npm，只能走 GitHub）
  · ⚠️ **别跟原版 `dsh-bili-scroll` 装在一起**：挂载 id / 数据目录 / 路由都沿用同一个名字，会互相覆盖
  · ⚠️ **升级旧版**：如果用户在设置页看到的按钮叫「**重装依赖**」（不是「**重装主依赖**」），
- 说明装的还是 **** —— 那一版建 Python 环境时缺一个参数，**依赖装不上、二维码也画不出来**。
+ 说明装的还是 2.1.2 之前的旧版 —— 旧版可能无法正确建立 Python 环境。
  让用户重跑一次上面那条 `add` 就是升级（然后再重启一次）。
 3. ⚠️ **提醒用户重启一次 dsh**（必须，bundle 层要重启才组装）。
 4. 让用户进 **设置 → 刷B站**：点「**装主依赖**」→ 点「**扫码登录**」（手机扫码，选"记住我 / 长期"）。
@@ -23,11 +23,11 @@
 
 ## ⚠️ 已知环境差异（有用户反馈）
 
-- ⭐⭐ **桌面版 DSH（NEXT）/ 0.2.x 装不起来 —— 已知真 bug， 起已修**： 及以前装到桌面版上，
+- ⭐⭐ **桌面版 DSH（NEXT）/ 0.2.x 装不起来 —— 2.1.2 已修**：旧版装到桌面版上，
  设置页里**根本不出现「刷B站」**，DSH 只留一句 `warning: 1 entry did not activate … failed to import` ✓
  （根因：宿主半 import 的 `@deepseek-ai/schemastery` / `dsh-tools` 是 *optional peer*，而桌面版 profile 是
  `autoInstallPeers: false` ⇒ pnpm 永远不装；`dsh-tools` 自己还带 4 个 peer，光装它也救不回来 ✗）。
- ⇒ **遇到桌面版用户：先让他升级到 +**（修法是：不再裸 import `@deepseek-ai/*` ——
+ ⇒ **遇到桌面版用户：先升级到 2.1.2+**（修法是：不再裸 import `@deepseek-ai/*` ——
  `lib/hostdeps.mjs` 先找宿主那棵树、再退到自己依赖里那份，`defineTool` 拿不到就用**本地等价实现**；
  `schemastery` 也正式进了 `dependencies` ✓）。升级后还不行，要 `duty.log` 里那几行
  （里面会写"宿主依赖是从哪儿取的" ✓）。

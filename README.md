@@ -1,5 +1,9 @@
 # dsh-yu-bili ｜ 刷B站
 
+## 给 Agent 的一次安装验收
+
+执行 `dsh plugin --profile desktop add github:Speraymer/dsh-yu-bili`，重启 DSH；让用户在“设置 → 刷B站”依次点“装主依赖”“测一下”“扫码登录”。只有设置页出现、环境自检通过且一次手动浏览写出报告，才算安装完成；自动评论必须由用户自己开启。
+
 ## 它做什么
 
 - 按你填的关键词（留空则用内置那几组）搜近几天的视频
@@ -29,7 +33,7 @@
 
 ```bash
 # ⭐ 本仓没有发布到 npm，装 / 升级都走 GitHub
-dsh plugin --profile web add github:Speraymer/dsh-yu-bili
+dsh plugin --profile desktop add github:Speraymer/dsh-yu-bili
 ```
 
 > 所以下面「装不上」那一节里凡是提到 npm 的地方，请一律按 github 那条理解。
@@ -39,16 +43,14 @@ dsh plugin --profile web add github:Speraymer/dsh-yu-bili
 
 ## 装不上 / 卡住时，先看这五条（都是用户实测撞过的）
 
-   `dsh --profile headless …`，桌面版上容易卡在那儿。⇒ **先用设置页的「现在跑一轮」手动跑**（那条是稳的）；
-   能不能自动跑，等你确认过自己那台桌面版的版本与 profile 再说。
-   不想升级也行，救急一句：`<家>\.venv\Scripts\python.exe -m ensurepip --upgrade`，再点一次「重装主依赖」。
+1. 设置页没出现：重跑 GitHub 安装命令、重启 DSH，再看启动日志里的 `failed to import`。
+2. 主依赖失败：复制设置页诊断；若 venv 缺 pip，执行 `<家>\.venv\Scripts\python.exe -m ensurepip --upgrade` 后重试。
 3. **它下不动 `uv`**（桌面版上这条链路经常不通）⇒ 自己放一份 `uv.exe` 到 `<家目录>\bin\`，
    插件会用那一份、跳过下载。
 4. **「本地转写」是两段式的** —— 只打开开关**不够**，还得点它下面那个「**装转写依赖**」。
    没装的时候，没字幕的视频会被**跳过**（报告里现在会写「**因无字幕跳过 N 条**」，你能一眼看出漏了几条）。
 5. ⭐ **桌面版：装完设置页里根本不出现「刷B站」，日志只有一句 `1 entry did not activate … failed to import`** ——
-   而桌面版 profile（`autoInstallPeers: false`）**不会装它们** ⇒ 插件整条不激活。
-   装完还是不行的话，把 `duty.log` 里那几行发来（里面会写清楚"宿主依赖是从哪儿取的"）。
+   把 `duty.log` 里的报错原样交给维护者，不要猜测成功。
 
 ## 首次使用（两步）
 

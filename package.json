@@ -1,6 +1,6 @@
 {
     "name":  "dsh-yu-bili",
-    "version":  "2.1.1",
+    "version":  "2.1.2",
     "description":  "DSH 刷B站插件：谷时浏览、读字幕和评论、写日报，并把有价值的经历交给人格素材入口。",
     "keywords":  [
                      "dsh",
@@ -40,6 +40,9 @@
                   "LICENSE",
                   "NOTICE.md"
               ],
+    "scripts":  {
+                    "test":  "node --test && node selfcheck.mjs"
+                },
     "engines":  {
                     "dsh":  "\u003e=0.1.7-rc.1",
                     "node":  "\u003e=22"
@@ -66,9 +69,7 @@
                 "client":  {
                                "platform":  "web",
                                "inject":  [
-                                              "@deepseek-ai/dsh-client-runtime",
-                                              "@deepseek-ai/dsh-client-ui-settings",
-                                              "@deepseek-ai/dsh-client-ui-settings-plugins"
+                                              "slots"
                                           ]
                            }
             },

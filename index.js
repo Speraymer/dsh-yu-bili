@@ -34,6 +34,7 @@ import { loginStart, loginPoll, saveCredential, renderQrPng } from './lib/login.
 import { resolveUid } from './lib/uid.mjs'
 import { loadCred as dmCred, listSessions as dmList, fetchMsgs as dmFetch } from './lib/dm.mjs'
 import { ensureUv } from './lib/uvfetch.mjs'
+import { trustedRequestOrigin } from './lib/http.mjs'
 
 export const name = 'bili-scroll'
 export const inject = ['webServer', 'tools', 'settings']
@@ -2060,6 +2061,9 @@ function reportMeta() {
   const handle = async (req, res, url) => {
     refreshCfg()
     const path = url.pathname
+    if (req.method !== 'GET' && !trustedRequestOrigin(req)) {
+      return sendJson(res, 403, { ok: false, error: '请求来源不匹配' })
+    }
     // ⭐ 2026-10-21：每条视频一份笔记 —— **宿主拆报告**，不让模型多写一个字（零 token、不会写错）
     const notesDir = join(stateDir, 'reports')
     let notesSig = ''
